@@ -1,0 +1,47 @@
+// prisma/schema.prisma
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  MOD
+}
+
+enum EntryType {
+  ENEMY
+  FRIEND
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  tgId          BigInt   @unique             // Telegram numeric user id (64-bit)
+  nickname      String                        // обязателен
+  nicknameLower String    @unique             // для поиска/уникальности без учёта регистра
+  role          Role     @default(MOD)
+  createdAt     DateTime @default(now())
+
+  @@index([nickname])
+}
+
+model Entry {
+  id             Int       @id @default(autoincrement())
+  nickname       String
+  nicknameLower  String
+  type           EntryType
+  reason         String?
+  addedBy        BigInt
+  createdAt      DateTime  @default(now())
+
+  @@unique([nicknameLower, type])   // уникальность без учёта регистра
+  @@index([nickname, type])
+}
+
