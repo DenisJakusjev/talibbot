@@ -1,38 +1,39 @@
 import { Bot } from "grammy";
 import { prisma } from "../db.js";
-import { normalizeNick, replySafe } from "../utils.js";
+import { normalizeNick, replySafe, parseNickAndReason } from "../utils.js";
 import { EntryType } from "@prisma/client";
 
 export function registerEnemyCommands(bot: Bot) {
     // добавить врага
     bot.hears(/^(:Джарвис|@talibanlist_bot)\s+add\s+enemy\s+/i, async (ctx) => {
-        const args = ctx.message!.text!.split(/\s+/).slice(3);
-        const [nickname, ...rest] = args;
-        const reason = rest.join(" ");
-        const { nick, lower } = normalizeNick(nickname);
+        // хвост команды после "add enemy"
+        const tail = ctx.message!.text!.replace(/^(:Джарвис|@talibanlist_bot)\s+add\s+enemy\s+/i, "");
+        const { nick, reason } = parseNickAndReason(tail);
+        if (!nick) return replySafe(ctx, "⚠️ Укажи ник. Примеры:\n:Джарвис add enemy \"La Plage\" ниндзя-лут\n:Джарвис add enemy La Plage | ниндзя-лут");
+
+        const { nick: clean, lower } = normalizeNick(nick);
 
         try {
             await prisma.entry.create({
                 data: {
-                    nickname: nick,
+                    nickname: clean,
                     nicknameLower: lower,
                     type: EntryType.ENEMY,
                     reason,
                     addedBy: BigInt(ctx.from?.id || 0),
                 },
             });
-            return replySafe(ctx, `✅ Добавлен в ЧС: ${nick}${reason ? ` — ${reason}` : ""}`);
+            return replySafe(ctx, `✅ Добавлен в ЧС: ${clean}${reason ? ` — ${reason}` : ""}`);
         } catch (e: any) {
             if (e.code === "P2002") return replySafe(ctx, "ℹ️ Уже в ЧС.");
             return replySafe(ctx, `❌ Ошибка: ${e.message}`);
         }
     });
 
-    // удалить врага
+    // удалить врага (оставь как было)
     bot.hears(/^(:Джарвис|@talibanlist_bot)\s+del\s+enemy\s+/i, async (ctx) => {
-        const args = ctx.message!.text!.split(/\s+/).slice(3);
-        const nickname = args.join(" ");
-        const { lower } = normalizeNick(nickname);
+        const tail = ctx.message!.text!.replace(/^(:Джарвис|@talibanlist_bot)\s+del\s+enemy\s+/i, "");
+        const { lower } = normalizeNick(tail);
         const res = await prisma.entry.deleteMany({
             where: { nicknameLower: lower, type: EntryType.ENEMY },
         });
