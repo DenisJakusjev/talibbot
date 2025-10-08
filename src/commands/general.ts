@@ -76,7 +76,7 @@ export function registerGeneralCommands(bot: Bot) {
 • add enemy / del enemy
 • add friend / del friend
 • check / give full
-• add enemy НИК ПРИЧИНА — добавить врага
+• add enemy "НИК" ПРИЧИНА — добавить врага (НИК В КОВЫЧКАХ)
 • del enemy НИК — удалить врага
 • add friend НИК — добавить друга
 • del friend НИК — удалить друга
