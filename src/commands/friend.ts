@@ -1,22 +1,29 @@
 import { Bot } from "grammy";
 import { prisma } from "../db.js";
-import {normalizeNick, parseNickAndReason, replySafe} from "../utils.js";
+import { normalizeNick, replySafe, parseNickAndReason } from "../utils.js";
 import { EntryType } from "@prisma/client";
 
 export function registerFriendCommands(bot: Bot) {
-    // добавить друга
+    // Добавить друга (любой пользователь)
     bot.hears(/^(:Джарвис|@talibanlist_bot)\s+add\s+friend\s+/i, async (ctx) => {
+        // хвост после "add friend"
         const tail = ctx.message!.text!.replace(/^(:Джарвис|@talibanlist_bot)\s+add\s+friend\s+/i, "");
-        const { nick } = parseNickAndReason(tail); // причина игнорируется
-        if (!nick) return replySafe(ctx, "⚠️ Укажи ник. Примеры:\n:Джарвис add friend \"La Plage\"");
+        // используем общий парсер, но причину игнорируем
+        const { nick } = parseNickAndReason(tail);
+        if (!nick) {
+            return replySafe(
+                ctx,
+                '⚠️ Укажи ник. Пример:\n:Джарвис add friend "La Plage"'
+            );
+        }
 
         const { nick: clean, lower } = normalizeNick(nick);
 
         try {
             await prisma.entry.create({
                 data: {
-                    nickname: clean,
-                    nicknameLower: lower,
+                    nickname: clean,      // показываем как ввели
+                    nicknameLower: lower, // ищем по lower
                     type: EntryType.FRIEND,
                     addedBy: BigInt(ctx.from?.id || 0),
                 },
@@ -28,11 +35,10 @@ export function registerFriendCommands(bot: Bot) {
         }
     });
 
-    // удалить друга
+    // Удалить друга (любой пользователь)
     bot.hears(/^(:Джарвис|@talibanlist_bot)\s+del\s+friend\s+/i, async (ctx) => {
-        const args = ctx.message!.text!.split(/\s+/).slice(3);
-        const nickname = args.join(" ");
-        const { lower } = normalizeNick(nickname);
+        const tail = ctx.message!.text!.replace(/^(:Джарвис|@talibanlist_bot)\s+del\s+friend\s+/i, "");
+        const { lower } = normalizeNick(tail);
         const res = await prisma.entry.deleteMany({
             where: { nicknameLower: lower, type: EntryType.FRIEND },
         });
