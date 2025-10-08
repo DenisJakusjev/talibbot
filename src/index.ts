@@ -1,6 +1,6 @@
 import { bot } from "./bot.js";
 import { ensureConnected } from "./db.js";
-import { registerAllCommands } from "./commands";
+import { registerAllCommands } from "./commands/index.js";
 
 await ensureConnected();
 registerAllCommands(bot);
