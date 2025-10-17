@@ -88,4 +88,11 @@ export function registerGeneralCommands(bot: Bot) {
 `;
         return replySafe(ctx, text.trim());
     });
+    bot.hears(/^(:Джарвис|@talibanlist_bot)\s+bank/i, async (ctx) => {
+        const text = `
+        Ячейка 10381 НЕВА 
+        Ячейка 11415 МОСКВА
+`;
+        return replySafe(ctx, text.trim());
+    });
 }
