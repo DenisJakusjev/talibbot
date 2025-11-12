@@ -73,7 +73,7 @@ export function parseNickAndReason(tail: string): { nick: string; reason: string
 export function replySafe(ctx: Context, text: string) {
     return ctx.reply(text, { reply_to_message_id: ctx.msg?.message_id });
 }
-
+console.log("TestingTEST")
 export function xmlEscape(s: string) {
     return s
         .replaceAll("&", "&amp;")
