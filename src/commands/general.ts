@@ -39,30 +39,31 @@ export function registerGeneralCommands(bot: Bot) {
 
     // Выдать полный XML списка врагов
     bot.hears(/^(:Джарвис|@talibanlist_bot)\s+give\s+full/i, async (ctx) => {
-        const enemies = await prisma.entry.findMany({
-            where: { type: EntryType.ENEMY },
-            select: { nickname: true },
-            orderBy: { nickname: "asc" },
-        });
-
-        if (!enemies.length) return replySafe(ctx, "⚠️ Список врагов пуст.");
-
-        const seen = new Set<string>();
-        const names = enemies
-            .filter((e) => {
-                const k = e.nickname.toLowerCase();
-                if (seen.has(k)) return false;
-                seen.add(k);
-                return true;
-            })
-            .map((e) => e.nickname);
-
-        const body = names
-            .map((n) => `  <item name="${xmlEscape(n)}" />`)
-            .join("\n");
-        const xml = `<group name="${xmlEscape(GROUP_NAME)}">\n${body}\n</group>`;
-
-        return replySafe(ctx, xml);
+        // const enemies = await prisma.entry.findMany({
+        //     where: { type: EntryType.ENEMY },
+        //     select: { nickname: true },
+        //     orderBy: { nickname: "asc" },
+        // });
+        //
+        // if (!enemies.length) return replySafe(ctx, "⚠️ Список врагов пуст.");
+        //
+        // const seen = new Set<string>();
+        // const names = enemies
+        //     .filter((e) => {
+        //         const k = e.nickname.toLowerCase();
+        //         if (seen.has(k)) return false;
+        //         seen.add(k);
+        //         return true;
+        //     })
+        //     .map((e) => e.nickname);
+        //
+        // const body = names
+        //     .map((n) => `  <item name="${xmlEscape(n)}" />`)
+        //     .join("\n");
+        // const xml = `<group name="${xmlEscape(GROUP_NAME)}">\n${body}\n</group>`;
+        //
+        // return replySafe(ctx, xml);
+        return replySafe(ctx, "test")
     });
 
     // Help
